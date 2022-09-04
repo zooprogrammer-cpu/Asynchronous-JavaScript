@@ -4,47 +4,10 @@ const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
 /////////////////////////////////////
-
-
-
-
-
-// //Callback hell. 
-// //Let's get the country and the neighboring country
-// const getCountryAndNeighbour = function (country) {
-//     //AJAX call country 1
-//     const request = new XMLHttpRequest();
-//     request.open('GET', `https://restcountries.com/v2/name/${country}`)
-//     request.send();
-//     request.addEventListener('load', function () {
-//         const [data] = JSON.parse(this.responseText)
-//         console.log(data);
-//         //Render Country 1
-//         renderCountry(data);
-
-//         // Get the neighbor country(2)
-//         // Use Optional chaining for countries with no borders property
-//         const neighbour = data.borders?.[0]
-//         // AJAX call country 2
-//         const request2 = new XMLHttpRequest();
-//         request2.open('GET', `https://restcountries.com/v2/alpha/${neighbour}`)
-//         request2.send();
-
-//         request2.addEventListener('load', function () {
-//             const data2 = JSON.parse(this.responseText)
-//             console.log(this.responseText);
-//             renderCountry(data2, 'neighbour');
-
-//         })
-//     })
-// }
-
-// getCountryAndNeighbour('usa')
-
-// REST api
-// const request = fetch(`https://restcountries.com/v2/name/portugal`)
-
-// console.log(request); // Promise:  {status: "pending"}
+const renderError = function(msg){
+    countriesContainer.insertAdjacentText('beforeend', msg)
+    // countriesContainer.style.opacity = 1
+}
 
 const renderCountry = function (data, className = '') {
     const html = `
@@ -60,19 +23,37 @@ const renderCountry = function (data, className = '') {
         </article>
     `;
     countriesContainer.insertAdjacentHTML('beforeend', html)
-    countriesContainer.style.opacity = 1
+    // countriesContainer.style.opacity = 1
 }
 
-//consuming promise
+//promise error handling
+
 const getCountryData = function (country){
     fetch(`https://restcountries.com/v2/name/${country}`)
     .then((response)=> response.json())
-    .then((data)=>renderCountry(data[0]))
+    .then((data)=>{
+        renderCountry(data[0]);
+        //using optional chaining to account for countries with no borders property
+        const neighbour = data[0].borders?.[0]
+        
+        //country 2
+        return fetch(`https://restcountries.com/v2/alpha/${neighbour}`)
+
+    })
+    .then(response=>response.json())
+    .then(data=>renderCountry(data,'neighbour'))
+    .catch(err=>{
+       console.error(`${err}💥`);
+       renderError(`Something went wrong 💥 ${err.message}. Try again!`)
+    })
+    .finally(()=>{
+        countriesContainer.style.opacity = 1
+    })
+    
 };
-
-getCountryData('portugal')
-
-
+btn.addEventListener('click', function(){
+    getCountryData('germany')
+})
 
 
 
