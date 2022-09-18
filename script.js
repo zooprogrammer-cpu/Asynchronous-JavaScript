@@ -7,8 +7,8 @@ const countriesContainer = document.querySelector('.countries');
 /////////////////////////////////////
 
 
-const renderCountry = function (data, className = ''){
-    const html = `
+const renderCountry = function (data, className = '') {
+  const html = `
     <article class="country ${className}">
           <img class="country__img" src="${data.flag}" />
           <div class="country__data">
@@ -20,13 +20,43 @@ const renderCountry = function (data, className = ''){
           </div>
         </article>
     `;
-        countriesContainer.insertAdjacentHTML('beforeend', html)
-        countriesContainer.style.opacity = 1
+  countriesContainer.insertAdjacentHTML('beforeend', html)
+  countriesContainer.style.opacity = 1
 }
 
 
-const whereAmI = function (lat, lng) {
-  fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+
+
+//whereAmI(52.508, 13.381);
+
+// Promisifying with geolocation - find the current location
+// navigator.geolocation.getCurrentPosition(
+//   position => console.log(position),
+//   err => console.error(err)
+// )
+// Copying the above function and put it inside the Promise
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err)
+    // )
+    //can also do this
+    navigator.geolocation.getCurrentPosition(resolve, reject)
+
+  })
+}
+
+//getPosition().then(pos => console.log(`Your current position is:`, pos))
+
+
+const whereAmI = function () {
+  getPosition()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    })
     .then(res => {
       if (!res.ok) {
         throw new Error(`Problem with geocoding ${res.status}`)
@@ -50,8 +80,4 @@ const whereAmI = function (lat, lng) {
     })
 }
 
-whereAmI(52.508, 13.381);
-
-// querySelector
-// addEventListener('click',whereAmI(52.508,13.3817))
-
+btn.addEventListener('click', whereAmI)
