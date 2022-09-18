@@ -1,48 +1,57 @@
 'use strict';
 
-// const lotteryPromise = new Promise(function (resolve, reject) {
-//   console.log(`Lottery draw is happening 🔮`);
-//   setTimeout(function () {
-//     if (Math.random() > 0.5) {
-//       resolve(`You won the lottery!💰 `)
-//     }
-//     else {
-//       reject(new Error(`You lost your money!💩 `))
-//     }
-//   }, 2000)
-// })
+//where am I 
+const btn = document.querySelector('.btn-country');
+const countriesContainer = document.querySelector('.countries');
 
-// lotteryPromise.then(res=>{
-//   console.log(res);
-// }).catch(err=>{
-//   console.error(err);
-// })
+/////////////////////////////////////
 
-//Promisify the setTimeout function. Real world example
 
-const wait = function (seconds) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, seconds * 1000)
-  })
+const renderCountry = function (data, className = ''){
+    const html = `
+    <article class="country ${className}">
+          <img class="country__img" src="${data.flag}" />
+          <div class="country__data">
+            <h3 class="country__name">${data.name}</h3>
+            <h4 class="country__region">${data.region}</h4>
+            <p class="country__row"><span>👫</span>${(+data.population / 1000000).toFixed(1)} people</p>
+            <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+            <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+          </div>
+        </article>
+    `;
+        countriesContainer.insertAdjacentHTML('beforeend', html)
+        countriesContainer.style.opacity = 1
 }
 
-// wait(1)
-//   .then(() => {
-//     console.log(`I waited for 1 seconds`);
-//     return wait(1)
-//   })
-//   .then(() => {
-//     console.log(`I waited for 2 seconds`);
-//     return wait(1)
-//   })
-//   .then(() => {
-//     console.log(`I waited for 3 seconds`);
-//     return wait(1)
-//   })
 
-Promise.resolve(`You won`).then(res=>{console.log(res);
-}) // this triggers immediately and prints 'You won'
+const whereAmI = function (lat, lng) {
+  fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Problem with geocoding ${res.status}`)
+      }
+      return res.json()
+    })
+    .then(data => {
+      console.log(data);
+      console.log(`You are in ${data.city}, ${data.country}`)
+      return fetch(`https://restcountries.com/v2/name/${data.country}`)
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Country not found ${res.status}`)
+      }
+      return res.json()
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => {
+      console.error(`There is some error in geocode data ${err.message}`)
+    })
+}
 
-Promise.reject(new Error(`You lost`)).catch(err=>{console.error(err);
-}) // this triggers immediately and prints 'You lost'
+whereAmI(52.508, 13.381);
+
+// querySelector
+// addEventListener('click',whereAmI(52.508,13.3817))
 
