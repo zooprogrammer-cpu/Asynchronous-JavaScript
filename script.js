@@ -1,25 +1,48 @@
 'use strict';
 
-console.log('Test start')
-setTimeout(()=>console.log('0 sec timer', 0))
-Promise.resolve('Resolved promise 1'). then(res=>{
-  console.log(res);
-})
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log(`Lottery draw is happening 🔮`);
+//   setTimeout(function () {
+//     if (Math.random() > 0.5) {
+//       resolve(`You won the lottery!💰 `)
+//     }
+//     else {
+//       reject(new Error(`You lost your money!💩 `))
+//     }
+//   }, 2000)
+// })
 
-Promise.resolve('Resolved Promised 2').then(res=>{
-  for (let i =0 ; i <10; i++){
-    console.log(res)
-  }
-})
+// lotteryPromise.then(res=>{
+//   console.log(res);
+// }).catch(err=>{
+//   console.error(err);
+// })
 
-console.log(`Test end`);
+//Promisify the setTimeout function. Real world example
 
-// code outside of any callback runs first
-// synchronous code comes first
-// Test Start
-// Test End
-//micro tasks which are callbacks 
-//related to promises has priority over the regular callback queue
-// Resolved promise 1
-// 0 sec timer // Note that you cannot rely on the 0 sec timer for precision
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000)
+  })
+}
+
+// wait(1)
+//   .then(() => {
+//     console.log(`I waited for 1 seconds`);
+//     return wait(1)
+//   })
+//   .then(() => {
+//     console.log(`I waited for 2 seconds`);
+//     return wait(1)
+//   })
+//   .then(() => {
+//     console.log(`I waited for 3 seconds`);
+//     return wait(1)
+//   })
+
+Promise.resolve(`You won`).then(res=>{console.log(res);
+}) // this triggers immediately and prints 'You won'
+
+Promise.reject(new Error(`You lost`)).catch(err=>{console.error(err);
+}) // this triggers immediately and prints 'You lost'
 
