@@ -1,11 +1,7 @@
-'use strict';
-
-//where am I 
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
 /////////////////////////////////////
-
 
 const renderCountry = function (data, className = '') {
   const html = `
@@ -24,60 +20,35 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1
 }
 
-
-
-
-//whereAmI(52.508, 13.381);
-
-// Promisifying with geolocation - find the current location
-// navigator.geolocation.getCurrentPosition(
-//   position => console.log(position),
-//   err => console.error(err)
-// )
-// Copying the above function and put it inside the Promise
-
 const getPosition = function () {
   return new Promise(function (resolve, reject) {
-    // navigator.geolocation.getCurrentPosition(
-    //   position => resolve(position),
-    //   err => reject(err)
-    // )
-    //can also do this
     navigator.geolocation.getCurrentPosition(resolve, reject)
-
   })
 }
 
-//getPosition().then(pos => console.log(`Your current position is:`, pos))
+/////Async/await
 
+const whereAmI = async function () {
+  //Geolocation
+  const pos = await getPosition();
+  const { latitude: lat, longitude: lng } = pos.coords;
 
-const whereAmI = function () {
-  getPosition()
-    .then(pos => {
-      const { latitude: lat, longitude: lng } = pos.coords;
-      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`Problem with geocoding ${res.status}`)
-      }
-      return res.json()
-    })
-    .then(data => {
-      console.log(data);
-      console.log(`You are in ${data.city}, ${data.country}`)
-      return fetch(`https://restcountries.com/v2/name/${data.country}`)
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`Country not found ${res.status}`)
-      }
-      return res.json()
-    })
-    .then(data => renderCountry(data[0]))
-    .catch(err => {
-      console.error(`There is some error in geocode data ${err.message}`)
-    })
+  //Reverse geocoding . await until the promise from fetch returns and assign to resGeo variable
+  const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+  const dataGeo = await resGeo.json();
+  console.log(dataGeo);
+
+  //Country data
+  // await until the promise of the value returns and assign it to res variable
+  const res = await fetch(`https://restcountries.com/v2/name/${dataGeo.country}`);
+  console.log(res);
+
+  // this is the same as doing this in the old way
+  //fetch(`https://restcountries.com/v2/name/${country}`).then(res=>console.log(res))
+
+  const data = await res.json()
+  console.log(data);
+  renderCountry(data[0])
 }
-
-btn.addEventListener('click', whereAmI)
+whereAmI();
+console.log('FIRST');
