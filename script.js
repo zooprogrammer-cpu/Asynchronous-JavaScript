@@ -36,19 +36,26 @@ const whereAmI = async function () {
   //Reverse geocoding . await until the promise from fetch returns and assign to resGeo variable
   const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
   const dataGeo = await resGeo.json();
-  console.log(dataGeo);
 
   //Country data
   // await until the promise of the value returns and assign it to res variable
   const res = await fetch(`https://restcountries.com/v2/name/${dataGeo.country}`);
-  console.log(res);
 
   // this is the same as doing this in the old way
   //fetch(`https://restcountries.com/v2/name/${country}`).then(res=>console.log(res))
 
   const data = await res.json()
-  console.log(data);
   renderCountry(data[0])
+
+  return `You are in ${dataGeo.city}, ${dataGeo.country}`
 }
-whereAmI();
-console.log('FIRST');
+
+console.log(`1. Will get location`)
+//this returns a promise and not the value that we would like
+// const city = whereAmI();
+// console.log(city);
+// need to add .then
+whereAmI()
+  .then(city => console.log(city))
+  //.catch(error=> console.error(error))
+  //.finally(() => console.log(`3. Finished getting location`));
