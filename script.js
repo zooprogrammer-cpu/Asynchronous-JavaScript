@@ -1,3 +1,4 @@
+'use strict';
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
@@ -50,12 +51,25 @@ const whereAmI = async function () {
   return `You are in ${dataGeo.city}, ${dataGeo.country}`
 }
 
-console.log(`1. Will get location`)
-//this returns a promise and not the value that we would like
-// const city = whereAmI();
-// console.log(city);
+console.log(`1. Will get location`);
+// this returns a promise and not the value that we would like
+//const city = whereAmI();
+//console.log(city);
 // need to add .then
-whereAmI()
-  .then(city => console.log(city))
-  //.catch(error=> console.error(error))
-  //.finally(() => console.log(`3. Finished getting location`));
+// whereAmI()
+//   .then(city => console.log(city))
+//   .catch(error=> console.error(error))
+//   .finally(() => console.log(`3. Finished getting location`));
+
+  //Instead of using .then, can use IIFE
+
+
+(async function(){
+  try{
+    const city = await whereAmI();
+    console.log(`2:`);
+  } catch(err){
+    console.error(err);
+  }
+  console.log(`3. Finished getting location`);
+})();
